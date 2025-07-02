@@ -19,6 +19,7 @@ useEffect(() => {
 
     const dataArray = new Uint8Array(analyser.frequencyBinCount);
     const socket = new WebSocket(`ws://${window.location.hostname}:3001`);
+    
     socketRef.current = socket;
 
     socket.onopen = () => {
