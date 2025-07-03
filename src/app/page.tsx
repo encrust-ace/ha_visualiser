@@ -19,7 +19,9 @@ export default function HomePage() {
 
   // Setup WebSocket once
   useEffect(() => {
-    const socket = new WebSocket(`ws://${window.location.hostname}:3001`);
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const socket = new WebSocket(`${protocol}://${window.location.hostname}:3001`);
+
     socketRef.current = socket;
 
     socket.onmessage = (event) => {
