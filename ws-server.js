@@ -26,7 +26,7 @@ function hsvToRgb(h, s, v) {
   return [r, g, b].map(x => Math.floor(x * 255));
 }
 
-function renderPacket(count, volume, hue) {
+function renderPacketLinear(count, volume, hue) {
   const lit = Math.floor(volume * count);
   const leds = [];
 
@@ -43,6 +43,77 @@ function renderPacket(count, volume, hue) {
   return Buffer.from([0x02, 0x01, ...leds]);
 }
 
+function renderPacketCenterPulse(count, volume, hue) {
+  const lit = Math.floor(volume * count);
+  const leds = new Array(count * 3).fill(0);
+  const center = Math.floor(count / 2);
+
+  for (let i = 0; i < lit; i++) {
+    const offset = Math.floor(i / 2);
+    const left = center - offset;
+    const right = center + offset;
+
+    const adjustedHue = (hue + offset / count) % 1.0;
+    const [r, g, b] = hsvToRgb(adjustedHue, 1, 1);
+
+    if (left >= 0) {
+      leds[left * 3] = r;
+      leds[left * 3 + 1] = g;
+      leds[left * 3 + 2] = b;
+    }
+    if (right < count) {
+      leds[right * 3] = r;
+      leds[right * 3 + 1] = g;
+      leds[right * 3 + 2] = b;
+    }
+  }
+
+  return Buffer.from([0x02, 0x01, ...leds]);
+}
+
+function renderPacketRainbowFlow(count, volume, hue) {
+  const leds = [];
+
+  for (let i = 0; i < count; i++) {
+    const shiftHue = (hue + i / count) % 1.0;
+    const [r, g, b] = hsvToRgb(shiftHue, 1, volume); // volume controls brightness
+    leds.push(r, g, b);
+  }
+
+  return Buffer.from([0x02, 0x01, ...leds]);
+}
+
+function renderPacketSparkle(count, volume, hue) {
+  const leds = new Array(count * 3).fill(0);
+  const sparkleCount = Math.floor(volume * count * 0.4);
+
+  for (let i = 0; i < sparkleCount; i++) {
+    const index = Math.floor(Math.random() * count);
+    const sparkleHue = (hue + Math.random() * 0.2) % 1.0;
+    const [r, g, b] = hsvToRgb(sparkleHue, 1, 1);
+
+    leds[index * 3] = r;
+    leds[index * 3 + 1] = g;
+    leds[index * 3 + 2] = b;
+  }
+
+  return Buffer.from([0x02, 0x01, ...leds]);
+}
+
+function renderPacket(count, volume, hue, effect = 'linear-fill') {
+  switch (effect) {
+    case 'center-pulse':
+      return renderPacketCenterPulse(count, volume, hue);
+    case 'rainbow-flow':
+      return renderPacketRainbowFlow(count, volume, hue);
+    case 'sparkle':
+      return renderPacketSparkle(count, volume, hue);
+    case 'linear-fill':
+    default:
+      return renderPacketLinear(count, volume, hue);
+  }
+}
+
 const wss = new WebSocket.Server({ port: 3001 }, () =>
   console.log("WebSocket server running on ws://localhost:3001")
 );
@@ -50,9 +121,10 @@ const wss = new WebSocket.Server({ port: 3001 }, () =>
 wss.on('connection', (ws) => {
   ws.on('message', (message) => {
     try {
-      const { volume, hue } = JSON.parse(message.toString());
+      const { volume, hue, effect } = JSON.parse(message.toString());
+
       for (const dev of LED_DEVICES) {
-        const pkt = renderPacket(dev.count, volume, hue);
+        const pkt = renderPacket(dev.count, volume, hue, effect);
         udpSocket.send(pkt, 0, pkt.length, 21324, dev.ip);
       }
     } catch (e) {
