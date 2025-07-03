@@ -128,11 +128,11 @@ function renderPacket(count, volume, hue, effect) {
 
 // === WebSocket Server ===
 const wss = new WebSocket.Server({ port: 3001 }, () =>
-  console.log('🟢 WebSocket server running on ws://localhost:3001')
+  console.log('WebSocket server running on ws://localhost:3001')
 );
 
 wss.on('connection', (ws) => {
-  console.log('🧩 Client connected');
+  console.log('Client connected');
 
   // Send current state to client
   ws.send(JSON.stringify({
