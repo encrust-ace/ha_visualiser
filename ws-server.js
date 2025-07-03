@@ -1,8 +1,5 @@
-const fs = require("fs");
-const https = require("https");
-const express = require("express");
-const WebSocket = require("ws");
-const dgram = require("dgram");
+const WebSocket = require('ws');
+const dgram = require('dgram');
 
 const LED_DEVICES = [
   { ip: '192.168.68.60', count: 89 },
@@ -46,13 +43,9 @@ function renderPacket(count, volume, hue) {
   return Buffer.from([0x02, 0x01, ...leds]);
 }
 
-const app = express();
-const server = https.createServer({
-  key: fs.readFileSync('certs/key.pem'),
-  cert: fs.readFileSync('certs/cert.pem'),
-}, app);
-
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocket.Server({ port: 3001 }, () =>
+  console.log("WebSocket server running on ws://localhost:3001")
+);
 
 wss.on('connection', (ws) => {
   ws.on('message', (message) => {
@@ -66,8 +59,4 @@ wss.on('connection', (ws) => {
       console.error("Failed to process message:", e);
     }
   });
-});
-
-server.listen(3001, () => {
-  console.log("Secure WebSocket + Express listening on https://<pi-ip>:3001");
 });
