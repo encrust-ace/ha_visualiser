@@ -9,6 +9,7 @@ const EFFECTS = [
   { value: 'wave-pulse', label: 'Wave Pulse Flow' },
 ];
 
+
 export default function HomePage() {
   const socketRef = useRef<WebSocket | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
