@@ -19,7 +19,7 @@ export default function HomePage() {
 
   // Setup WebSocket once
   useEffect(() => {
-    const socket = new WebSocket('ws://localhost:3001');
+    const socket = new WebSocket(`ws://${window.location.hostname}:3001`);
     socketRef.current = socket;
 
     socket.onmessage = (event) => {
