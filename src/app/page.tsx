@@ -1,6 +1,7 @@
 'use client';
-
+import styles from './page.module.css';
 import { useEffect, useRef, useState } from 'react';
+
 
 const EFFECTS = [
   { value: 'linear-fill', label: 'Linear Fill' },
@@ -86,24 +87,17 @@ export default function HomePage() {
   }, [isEnabled]);
 
   return (
-    <main style={{ background: 'black', color: 'white', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-      <h1 style={{ fontSize: '2rem', marginBottom: '1rem' }}>🎶 LED UDP Visualizer</h1>
+    <main className={styles.main}>
+      <h1 className={styles.title}>🎶 LED UDP Visualizer</h1>
 
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+      <div className={styles.controls}>
         <button
           onClick={() => {
             const next = !isEnabled;
             setIsEnabled(next);
             sendToggle(next);
           }}
-          style={{
-            padding: '0.5rem 1rem',
-            background: isEnabled ? 'green' : 'gray',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer'
-          }}
+          className={`${styles.button} ${isEnabled ? styles.buttonEnabled : ''}`}
         >
           {isEnabled ? '🛑 Stop Visualizer' : '▶️ Start Visualizer'}
         </button>
@@ -115,13 +109,7 @@ export default function HomePage() {
             setSelectedEffect(effect);
             sendEffect(effect);
           }}
-          style={{
-            padding: '0.5rem',
-            background: '#222',
-            color: 'white',
-            border: '1px solid #555',
-            borderRadius: '5px',
-          }}
+          className={styles.select}
         >
           {EFFECTS.map((e) => (
             <option key={e.value} value={e.value}>{e.label}</option>
@@ -129,7 +117,7 @@ export default function HomePage() {
         </select>
       </div>
 
-      <p style={{ fontSize: '0.9rem', color: '#aaa' }}>
+      <p className={styles.selectedEffect}>
         Selected Effect: <strong>{selectedEffect}</strong>
       </p>
     </main>

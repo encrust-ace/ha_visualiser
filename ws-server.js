@@ -2,8 +2,9 @@ const WebSocket = require('ws');
 const dgram = require('dgram');
 
 const LED_DEVICES = [
-  { ip: '192.168.68.60', count: 89 },
+  // { ip: '192.168.68.60', count: 89 },
   { ip: '192.168.68.64', count: 90 },
+  { ip: '192.168.68.50', count: 81 },
 ];
 
 let isEnabled = false;
